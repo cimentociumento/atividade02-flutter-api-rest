@@ -1,0 +1,11 @@
+00:00 +0: loading C:/dw/atv2/atividade02/aula_bloc/test/api_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: botão Consultar Produtos mostra o resultado da API
+Tela mostrou:
+Mouse (Periféricos): R$ 59.90
+Teclado (Periféricos): R$ 129.90
+Monitor (Monitores): R$ 899.90
+Headset (Áudio): R$ 249.90
+Webcam (Vídeo): R$ 189.90
+00:00 +1: (tearDownAll)
+00:00 +1: All tests passed!

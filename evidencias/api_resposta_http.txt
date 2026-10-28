@@ -1,0 +1,39 @@
+HTTP/1.1 200 OK
+Server: Werkzeug/3.1.3 Python/3.13.5
+Date: Wed, 28 Oct 2026 03:00:13 GMT
+Content-Type: application/json
+Content-Length: 485
+Connection: close
+
+[
+  {
+    "categoria": "Perif\u00e9ricos",
+    "id": 1,
+    "nome": "Mouse",
+    "preco": 59.9
+  },
+  {
+    "categoria": "Perif\u00e9ricos",
+    "id": 2,
+    "nome": "Teclado",
+    "preco": 129.9
+  },
+  {
+    "categoria": "Monitores",
+    "id": 3,
+    "nome": "Monitor",
+    "preco": 899.9
+  },
+  {
+    "categoria": "\u00c1udio",
+    "id": 4,
+    "nome": "Headset",
+    "preco": 249.9
+  },
+  {
+    "categoria": "V\u00eddeo",
+    "id": 5,
+    "nome": "Webcam",
+    "preco": 189.9
+  }
+]

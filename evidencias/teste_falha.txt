@@ -1,0 +1,7 @@
+00:00 +0: loading C:/dw/atv2/atividade02/aula_bloc/test/api_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: botão Consultar Produtos mostra o resultado da API
+Tela mostrou:
+Erro ao consultar API: ClientException with SocketException: O computador remoto recusou a conexão de rede (OS Error: O computador remoto recusou a conexão de rede, errno = 1225), address = localhost, port = 33622, uri=http://localhost:5000/produtos
+00:02 +1: (tearDownAll)
+00:02 +1: All tests passed!
