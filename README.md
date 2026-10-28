@@ -16,7 +16,7 @@ Disciplina: Desenvolvimento para Dispositivos Móveis
 | Evidência: consulta bem-sucedida no app | [`evidencias/app_sucesso.png`](evidencias/app_sucesso.png) |
 | Evidência: erro com o servidor desligado | [`evidencias/app_erro.png`](evidencias/app_erro.png) |
 
-Desafios A (mais dois produtos) e B (campo `categoria`) já estão aplicados no código. O Desafio C está descrito em `RESPOSTAS.md`.
+Desafios A (mais dois produtos) e B (campo `categoria`) já estão aplicados no código. O Desafio C (adaptação para a [Deck of Cards API](https://deckofcardsapi.com/), API da equipe) está descrito em `RESPOSTAS.md`.
 
 ## Como executar
 

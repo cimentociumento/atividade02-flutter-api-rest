@@ -108,38 +108,97 @@ Adicionei Headset e Webcam no `api.py`. Depois de reiniciar o servidor, o app mo
 A consulta continuou funcionando igual.
 
 **C. Usar a API da equipe**
-Endpoint escolhido (exemplo — trocar pelo da API da equipe): `GET /clientes`, que retorna
+API da equipe: [Deck of Cards API](https://deckofcardsapi.com/)
+Endpoint escolhido: `GET https://deckofcardsapi.com/api/deck/new/draw/?count=5` (cria um baralho embaralhado e compra 5 cartas).
+
+Resposta real do endpoint (com `count=2`):
 ```json
-[{"id": 1, "nome": "Ana", "email": "ana@email.com", "ativo": true}]
+{
+  "success": true,
+  "deck_id": "k8wfy7e5vsog",
+  "cards": [
+    {
+      "code": "0S",
+      "image": "https://deckofcardsapi.com/static/img/0S.png",
+      "images": {"svg": "https://deckofcardsapi.com/static/img/0S.svg", "png": "https://deckofcardsapi.com/static/img/0S.png"},
+      "value": "10",
+      "suit": "SPADES"
+    },
+    {"code": "3C", "image": "...", "images": {"svg": "...", "png": "..."}, "value": "3", "suit": "CLUBS"}
+  ],
+  "remaining": 50
+}
 ```
 
 Adaptações:
-- **Model:** criar uma classe com os campos que o endpoint retorna (mesmos nomes de chave do JSON) e um `fromJson` convertendo cada tipo, igual ao `Produto`. Campos que podem vir `null` precisam de tipo nulável (`String?`).
-- **Repository:** trocar o `baseUrl` pelo endereço da API da equipe e a rota `/produtos` pela rota escolhida. Se a API devolver um objeto em vez de lista (ex.: `{"dados": [...]}`), ler a lista de dentro dessa chave antes do `map`. Se exigir login, enviar o token no `headers` do `http.get`.
-- **Tela:** ajustar o texto montado no `map` para exibir os campos da nova classe.
 
-Exemplo aplicado ao `GET /clientes`:
+- **Model:** no lugar de `Produto`, uma classe `Carta` com `code`, `value`, `suit` e `image`, todos `String` (o `value` vem como texto, ex.: `"10"`, `"KING"`, `"ACE"`, então não dá para usar `int`). O `fromJson` lê as mesmas chaves do JSON. Os campos `deck_id` e `remaining` ficam fora da carta, porque são do baralho e não de cada carta.
+- **Repository:** o `baseUrl` passa a ser `https://deckofcardsapi.com/api` e a rota muda de `/produtos` para `/deck/new/draw/?count=5`. A diferença principal é que a resposta **não é uma lista**, é um objeto: o `jsonDecode` devolve um `Map`, e a lista fica dentro da chave `"cards"`. Também vale conferir o campo `success`, porque a API pode responder 200 com `success: false` (ex.: baralho sem cartas). Como é HTTPS, não precisa liberar tráfego sem criptografia nem usar `10.0.2.2`: funciona igual no emulador, no celular e no Windows.
+- **Tela:** cada linha mostra o valor e o naipe (ex.: `KING de HEARTS`). Como a API manda a URL da imagem, dá para trocar o `Text` por `Image.network(carta.image)` e exibir as cartas de verdade.
+
+Código:
 ```dart
-// cliente.dart
-class Cliente {
-  final int id;
-  final String nome;
-  final String? email; // pode vir null
-  final bool ativo;
+// carta.dart
+class Carta {
+  final String code;
+  final String value;
+  final String suit;
+  final String image;
 
-  const Cliente({required this.id, required this.nome, this.email, required this.ativo});
+  const Carta({
+    required this.code,
+    required this.value,
+    required this.suit,
+    required this.image,
+  });
 
-  factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(
-        id: (json['id'] as num).toInt(),
-        nome: json['nome'] as String,
-        email: json['email'] as String?,
-        ativo: json['ativo'] as bool,
+  factory Carta.fromJson(Map<String, dynamic> json) => Carta(
+        code: json['code'] as String,
+        value: json['value'] as String,
+        suit: json['suit'] as String,
+        image: json['image'] as String,
       );
 }
+```
 
-// cliente_repository.dart -> ClienteRepository('http://<ip-da-api-da-equipe>:<porta>')
-final resposta = await http.get(Uri.parse('$baseUrl/clientes'));
+```dart
+// carta_repository.dart
+import 'dart:convert';
 
-// tela
-'${c.nome} - ${c.email ?? 'sem e-mail'} (${c.ativo ? 'ativo' : 'inativo'})'
+import 'package:http/http.dart' as http;
+
+import 'carta.dart';
+
+class CartaRepository {
+  final String baseUrl;
+
+  const CartaRepository(this.baseUrl); // 'https://deckofcardsapi.com/api'
+
+  Future<List<Carta>> comprarCartas(int quantidade) async {
+    final resposta = await http
+        .get(Uri.parse('$baseUrl/deck/new/draw/?count=$quantidade'))
+        .timeout(const Duration(seconds: 5));
+
+    if (resposta.statusCode != 200) {
+      throw Exception('Erro HTTP: ${resposta.statusCode}');
+    }
+
+    // aqui o JSON é um objeto, e a lista de cartas fica dentro de "cards"
+    final Map<String, dynamic> dados = jsonDecode(resposta.body);
+    if (dados['success'] != true) {
+      throw Exception('A API não conseguiu comprar as cartas');
+    }
+
+    final List<dynamic> cards = dados['cards'];
+    return cards.map((item) => Carta.fromJson(item)).toList();
+  }
+}
+```
+
+```dart
+// main.dart (trecho que muda)
+final repository = const CartaRepository('https://deckofcardsapi.com/api');
+
+final cartas = await repository.comprarCartas(5);
+texto = cartas.map((c) => '${c.value} de ${c.suit}').join('\n');
 ```
